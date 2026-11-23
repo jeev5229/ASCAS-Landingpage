@@ -37,15 +37,18 @@ Status: Patient Requested Appointment - Pending Clinic Confirmation.
 Please contact the patient to confirm the appointment.
 ```
 
-The four body parameters must be in this order:
+The four body parameters must remain in this order:
 
 1. Patient name
 2. Patient mobile number, including country code
 3. Preferred clinic / centre
 4. Requested appointment date
 
-The consultation type remains part of the appointment submission and backend
-validation, but is not included in the approved WhatsApp template parameters.
+Branch and appointment date are optional in the form. When either is omitted,
+the API sends `Not specified` for that parameter so the approved four-parameter
+template never receives an empty or misleading value. The consultation type is
+also optional and remains part of the appointment submission, but is not
+included in the approved WhatsApp template parameters.
 
 AiSensy/Meta must approve the template before it can be used. The campaign name
 and parameter order must match that approved template. An API acceptance means

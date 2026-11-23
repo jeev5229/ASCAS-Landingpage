@@ -19,10 +19,18 @@ export default function AppointmentForm({
     const [country, setCountry] = React.useState("+91")
     const [narrow, setNarrow] = React.useState(false)
     const [submittedName, setSubmittedName] = React.useState("")
+    const [dateValue, setDateValue] = React.useState("")
+    const [openDropdown, setOpenDropdown] = React.useState<
+        "consultation" | "branch" | null
+    >(null)
     const ref = React.useRef<HTMLDivElement>(null)
     const formRef = React.useRef<HTMLFormElement>(null)
+    const appointmentDateRef = React.useRef<HTMLInputElement>(null)
     const submissionLock = React.useRef(false)
     const idempotencyKey = React.useRef<string | null>(null)
+    const dateDisplay = dateValue
+        ? `${dateValue.slice(8, 10)}-${dateValue.slice(5, 7)}-${dateValue.slice(0, 4)}`
+        : "DD-MM-YYYY"
 
     React.useEffect(() => {
         if (!ref.current) return
@@ -78,6 +86,17 @@ export default function AppointmentForm({
     function clearFieldFocus(field: HTMLInputElement | HTMLSelectElement) {
         field.style.borderColor = "#E9D9D4"
         field.style.boxShadow = "none"
+    }
+
+    function openDatePicker() {
+        const dateInput = appointmentDateRef.current
+        if (!dateInput) return
+        if (typeof dateInput.showPicker === "function") {
+            dateInput.showPicker()
+        } else {
+            dateInput.focus()
+            dateInput.click()
+        }
     }
 
     function showStatus(
@@ -144,19 +163,9 @@ export default function AppointmentForm({
             return
         }
 
-        if (!value("consultationType")) {
-            showStatus("Please select a preferred consultation.")
-            return
-        }
-
-        if (!value("clinic")) {
-            showStatus("Please select a preferred clinic or centre.")
-            return
-        }
-
         const appointmentDate = value("preferredDate")
 
-        if (!appointmentDate || appointmentDate < minimumDate) {
+        if (appointmentDate && appointmentDate < minimumDate) {
             showStatus("Please select today or a future appointment date.")
             return
         }
@@ -218,6 +227,7 @@ export default function AppointmentForm({
     function requestAnother() {
         formRef.current?.reset()
         setCountry("+91")
+        setDateValue("")
         setStatus("")
         setStatusType("error")
         setSubmittedName("")
@@ -402,61 +412,191 @@ export default function AppointmentForm({
                     </label>
 
                     <label style={label}>
-                        Preferred Consultation *
-                        <select
-                            name="consultationType"
-                            required
-                            style={input}
-                            defaultValue=""
-                            onFocus={(e) => setFieldFocus(e.currentTarget)}
-                            onBlur={(e) => clearFieldFocus(e.currentTarget)}
+                        Preferred Consultation
+                        <div
+                            className={`appointment-select-wrap${openDropdown === "consultation" ? " is-open" : ""}`}
+                            style={{ position: "relative" }}
                         >
-                            <option value="" disabled>
-                                Select consultation
-                            </option>
-                            <option value="Fertility Consultation">
-                                Fertility Consultation
-                            </option>
-                            <option value="Gynaecologist Consultation">
-                                Gynaecologist Consultation
-                            </option>
-                            <option value="Pregnancy Consultation">
-                                Pregnancy Consultation
-                            </option>
-                        </select>
+                            <select
+                                name="consultationType"
+                                style={{
+                                    ...input,
+                                    height: 50.67,
+                                    appearance: "none",
+                                    paddingRight: 40,
+                                }}
+                                defaultValue=""
+                                onClick={() =>
+                                    setOpenDropdown((current) =>
+                                        current === "consultation"
+                                            ? null
+                                            : "consultation"
+                                    )
+                                }
+                                onChange={() => setOpenDropdown(null)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Escape") setOpenDropdown(null)
+                                }}
+                                onFocus={(e) => setFieldFocus(e.currentTarget)}
+                                onBlur={(e) => {
+                                    clearFieldFocus(e.currentTarget)
+                                    setOpenDropdown(null)
+                                }}
+                            >
+                                <option value="" disabled>
+                                    Select consultation
+                                </option>
+                                <option value="Fertility Consultation">
+                                    Fertility Consultation
+                                </option>
+                                <option value="Gynaecologist Consultation">
+                                    Gynaecologist Consultation
+                                </option>
+                                <option value="Pregnancy Consultation">
+                                    Pregnancy Consultation
+                                </option>
+                            </select>
+                            <svg
+                                className="appointment-select-chevron"
+                                aria-hidden="true"
+                                viewBox="0 0 16 16"
+                                style={{
+                                    position: "absolute",
+                                    right: 14,
+                                    top: "50%",
+                                    width: 14,
+                                    height: 14,
+                                    pointerEvents: "none",
+                                    color: "#702D43",
+                                }}
+                            >
+                                <path
+                                    d="m3.5 6 4.5 4 4.5-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="1.5"
+                                />
+                            </svg>
+                        </div>
                     </label>
 
                     <label style={label}>
-                        Preferred Clinic / Centre *
-                        <select
-                            name="clinic"
-                            required
-                            style={input}
-                            defaultValue=""
-                            onFocus={(e) => setFieldFocus(e.currentTarget)}
-                            onBlur={(e) => clearFieldFocus(e.currentTarget)}
+                        Preferred Branch
+                        <div
+                            className={`appointment-select-wrap${openDropdown === "branch" ? " is-open" : ""}`}
+                            style={{ position: "relative" }}
                         >
-                            <option value="" disabled>
-                                Select clinic
-                            </option>
-                            <option value="Vadapalani">Vadapalani</option>
-                            <option value="Valasaravakkam">
-                                Valasaravakkam
-                            </option>
-                        </select>
+                            <select
+                                name="clinic"
+                                defaultValue=""
+                                style={{
+                                    ...input,
+                                    appearance: "none",
+                                    paddingRight: 40,
+                                }}
+                                onFocus={(e) => setFieldFocus(e.currentTarget)}
+                                onClick={() =>
+                                    setOpenDropdown((current) =>
+                                        current === "branch" ? null : "branch"
+                                    )
+                                }
+                                onChange={() => setOpenDropdown(null)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Escape") setOpenDropdown(null)
+                                }}
+                                onBlur={(e) => {
+                                    clearFieldFocus(e.currentTarget)
+                                    setOpenDropdown(null)
+                                }}
+                            >
+                                <option value="" disabled>
+                                    Select branch
+                                </option>
+                                <option value="Vadapalani">Vadapalani</option>
+                                <option value="Valasaravakkam">
+                                    Valasaravakkam
+                                </option>
+                            </select>
+                            <svg
+                                className="appointment-select-chevron"
+                                aria-hidden="true"
+                                viewBox="0 0 16 16"
+                                style={{
+                                    position: "absolute",
+                                    right: 14,
+                                    top: "50%",
+                                    width: 14,
+                                    height: 14,
+                                    pointerEvents: "none",
+                                    color: "#702D43",
+                                }}
+                            >
+                                <path
+                                    d="m3.5 6 4.5 4 4.5-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="1.5"
+                                />
+                            </svg>
+                        </div>
                     </label>
 
                     <label style={label}>
-                        Preferred Appointment Date *
-                        <input
-                            type="date"
-                            name="preferredDate"
-                            min={minimumDate}
-                            required
-                            style={input}
-                            onFocus={(e) => setFieldFocus(e.currentTarget)}
-                            onBlur={(e) => clearFieldFocus(e.currentTarget)}
-                        />
+                        Preferred Appointment Date
+                        <div style={{ position: "relative" }}>
+                            <input
+                                ref={appointmentDateRef}
+                                className="appointment-date-input"
+                                type="date"
+                                name="preferredDate"
+                                min={minimumDate}
+                                tabIndex={-1}
+                                aria-hidden="true"
+                                aria-readonly="true"
+                                style={{
+                                    ...input,
+                                    height: 50.67,
+                                    padding: "15px 40px 15px 14px",
+                                    color: "transparent",
+                                    WebkitTextFillColor: "transparent",
+                                    pointerEvents: "none",
+                                }}
+                                onChange={(e) =>
+                                    setDateValue(e.currentTarget.value)
+                                }
+                            />
+                            <button
+                                type="button"
+                                className="appointment-date-picker-button"
+                                aria-label={`Preferred Appointment Date: ${dateDisplay}. Open date picker`}
+                                onClick={openDatePicker}
+                            >
+                                <span
+                                    className={`appointment-date-display${dateValue ? " has-value" : ""}`}
+                                    aria-hidden="true"
+                                >
+                                    {dateDisplay}
+                                </span>
+                                <svg
+                                    aria-hidden="true"
+                                    viewBox="0 0 20 20"
+                                    width="17"
+                                    height="17"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="1.5"
+                                >
+                                    <rect x="3" y="5" width="14" height="12" rx="2" />
+                                    <path d="M6.5 3.5v3M13.5 3.5v3M3 8.5h14" />
+                                </svg>
+                            </button>
+                        </div>
                     </label>
                 </div>
 

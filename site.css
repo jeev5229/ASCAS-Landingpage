@@ -125,6 +125,82 @@ select:focus-visible {
     opacity: 0.72;
 }
 
+.appointment-form .appointment-date-input {
+    min-width: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    color: transparent;
+    text-align: left;
+    -webkit-text-fill-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.appointment-date-input::-webkit-datetime-edit {
+    color: transparent;
+}
+
+.appointment-date-input::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.appointment-date-picker-button {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: #702D43;
+    cursor: pointer;
+    text-align: left;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.appointment-date-display {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: #75666B;
+    font: 400 15px "DM Sans", sans-serif;
+    line-height: 1;
+    white-space: nowrap;
+    text-overflow: clip;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.appointment-date-display.has-value {
+    color: #34252B;
+}
+
+.appointment-date-picker-button svg {
+    flex-shrink: 0;
+}
+
+.appointment-select-chevron {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    width: 14px;
+    height: 14px;
+    color: #702D43;
+    pointer-events: none;
+    transform: translateY(-50%);
+    transition: transform 160ms ease;
+}
+
+.appointment-select-wrap.is-open .appointment-select-chevron {
+    transform: translateY(-50%) rotate(180deg);
+}
+
 .appointment-form input:-webkit-autofill,
 .appointment-form input:-webkit-autofill:hover,
 .appointment-form input:-webkit-autofill:focus {

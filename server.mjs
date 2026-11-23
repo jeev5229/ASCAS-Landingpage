@@ -57,9 +57,32 @@ function validateAppointment(input, now, timeZone) {
     const rawMobile =
         typeof input.mobile === "string" ? input.mobile.trim() : ""
     const mobile = rawMobile.replace(/[\s().-]/g, "")
-    const consultationType = input.consultationType
-    const clinic = input.clinic
-    const appointmentDate = input.appointmentDate
+    const consultationType =
+        typeof input.consultationType === "string"
+            ? input.consultationType.trim()
+            : input.consultationType === undefined || input.consultationType === null
+              ? ""
+              : null
+    const clinic =
+        typeof input.clinic === "string"
+            ? input.clinic.trim()
+            : input.clinic === undefined || input.clinic === null
+              ? ""
+              : null
+    const appointmentDate =
+        typeof input.appointmentDate === "string"
+            ? input.appointmentDate.trim()
+            : input.appointmentDate === undefined || input.appointmentDate === null
+              ? ""
+              : null
+
+    if (
+        consultationType === null ||
+        clinic === null ||
+        appointmentDate === null
+    ) {
+        return { error: "Please check your appointment details and try again." }
+    }
 
     if (
         patientName.length < 2 ||
@@ -78,28 +101,27 @@ function validateAppointment(input, now, timeZone) {
         return { error: "Please enter a valid mobile number for the selected country." }
     }
 
-    if (!CONSULTATIONS.has(consultationType)) {
+    if (consultationType && !CONSULTATIONS.has(consultationType)) {
         return { error: "Please select a valid consultation." }
     }
 
-    if (!CLINICS.has(clinic)) {
-        return { error: "Please select a valid clinic or centre." }
+    if (clinic && !CLINICS.has(clinic)) {
+        return { error: "Please select a valid branch." }
     }
 
-    if (
-        typeof appointmentDate !== "string" ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)
-    ) {
-        return { error: "Please select a valid appointment date." }
-    }
+    if (appointmentDate) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)) {
+            return { error: "Please select a valid appointment date." }
+        }
 
-    const parsedDate = new Date(`${appointmentDate}T00:00:00.000Z`)
-    if (
-        Number.isNaN(parsedDate.getTime()) ||
-        parsedDate.toISOString().slice(0, 10) !== appointmentDate ||
-        appointmentDate < localDateInZone(now, timeZone)
-    ) {
-        return { error: "Please select today or a future appointment date." }
+        const parsedDate = new Date(`${appointmentDate}T00:00:00.000Z`)
+        if (
+            Number.isNaN(parsedDate.getTime()) ||
+            parsedDate.toISOString().slice(0, 10) !== appointmentDate ||
+            appointmentDate < localDateInZone(now, timeZone)
+        ) {
+            return { error: "Please select today or a future appointment date." }
+        }
     }
 
     if (input.consent !== true) {
@@ -156,8 +178,8 @@ function buildCampaignPayload(appointment, config) {
         templateParams: [
             appointment.patientName,
             `${appointment.countryCode} ${appointment.mobile}`,
-            appointment.clinic,
-            appointment.appointmentDate,
+            appointment.clinic || "Not specified",
+            appointment.appointmentDate || "Not specified",
         ],
         source: "appointment-form",
         media: {},

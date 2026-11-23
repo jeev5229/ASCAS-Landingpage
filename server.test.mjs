@@ -130,7 +130,60 @@ test("missing required fields are rejected", async () => {
     assert.equal(response.status, 400)
 })
 
-test("consultation type remains required in the backend appointment submission", async () => {
+test("appointment submits with only the required fields and safe template parameters", async () => {
+    let payload
+    const app = await startServer({
+        fetchImpl: async (_url, options) => {
+            payload = JSON.parse(options.body)
+            return Response.json({ success: true })
+        },
+    })
+
+    const response = await app.post({
+        ...validAppointment,
+        consultationType: "",
+        clinic: "",
+        appointmentDate: "",
+    })
+    assert.equal(response.status, 200)
+    assert.deepEqual(payload.templateParams, [
+        "Asha Patient",
+        "+91 9876543210",
+        "Not specified",
+        "Not specified",
+    ])
+    assert.equal(payload.templateParams.length, 4)
+})
+
+test("each optional appointment field can be empty without inventing notification details", async () => {
+    for (const [field, expectedBranch, expectedDate] of [
+        ["consultationType", "Vadapalani", validAppointment.appointmentDate],
+        ["clinic", "Not specified", validAppointment.appointmentDate],
+        ["appointmentDate", "Vadapalani", "Not specified"],
+    ]) {
+        let payload
+        const app = await startServer({
+            fetchImpl: async (_url, options) => {
+                payload = JSON.parse(options.body)
+                return Response.json({ success: true })
+            },
+        })
+
+        const response = await app.post({
+            ...validAppointment,
+            [field]: "",
+        })
+        assert.equal(response.status, 200, `${field} should be optional`)
+        assert.deepEqual(payload.templateParams, [
+            "Asha Patient",
+            "+91 9876543210",
+            expectedBranch,
+            expectedDate,
+        ])
+    }
+})
+
+test("invalid non-empty optional appointment values are rejected", async () => {
     let called = false
     const app = await startServer({
         fetchImpl: async () => {
@@ -141,7 +194,7 @@ test("consultation type remains required in the backend appointment submission",
 
     const response = await app.post({
         ...validAppointment,
-        consultationType: "",
+        clinic: "Unknown branch",
     })
     assert.equal(response.status, 400)
     assert.equal(called, false)
