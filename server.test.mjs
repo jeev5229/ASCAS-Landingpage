@@ -8,7 +8,7 @@ const validAppointment = {
     patientName: "Asha Patient",
     countryCode: "+91",
     mobile: "9876543210",
-    consultationType: "Fertility Consultation",
+    consultationType: "Dr. Ashok Kumar (Gastroenterologist)",
     clinic: "Vadapalani",
     appointmentDate: futureDate(),
     consent: true,
@@ -104,6 +104,31 @@ test("valid request sends template data to the configured receptionist", async (
     assert.equal(payload.userName, validAppointment.patientName)
     assert.equal(payload.campaignName, "approved_appointment_template")
     assert.equal(payload.apiKey, "test-key-not-a-real-credential")
+})
+
+test("all listed doctors are accepted as optional consultation values", async () => {
+    const doctors = [
+        "Dr. Ashok Kumar (Gastroenterologist)",
+        "Dr. Solai Raj (Urologist)",
+        "Dr. Bala Murugan (Cardiologist)",
+        "Dr. Lakshmi (Gynecologist)",
+        "Dr. Senthil (Oncologist)",
+        "Dr. Naresh Kumar (General Physician)",
+        "Dr. Rajadharshini (Nutritionist)",
+        "Dr. Aishwarya (Obstetrician & Gynecologist)",
+        "Dr. Ashwin (Radiologist)",
+        "Dr. Dhivya (Laparoscopic and General Surgeon)",
+        "Dr. Shruthi (Genetic Counseling)",
+    ]
+    const app = await startServer({ rateLimitMax: doctors.length })
+
+    for (const doctor of doctors) {
+        const response = await app.post({
+            ...validAppointment,
+            consultationType: doctor,
+        })
+        assert.equal(response.status, 200, `${doctor} should be accepted`)
+    }
 })
 
 test("invalid mobile numbers are rejected before contacting AiSensy", async () => {

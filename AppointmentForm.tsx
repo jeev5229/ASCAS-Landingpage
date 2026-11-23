@@ -412,7 +412,7 @@ export default function AppointmentForm({
                     </label>
 
                     <label style={label}>
-                        Preferred Consultation
+                        Book a Consultation With:
                         <div
                             className={`appointment-select-wrap${openDropdown === "consultation" ? " is-open" : ""}`}
                             style={{ position: "relative" }}
@@ -444,16 +444,40 @@ export default function AppointmentForm({
                                 }}
                             >
                                 <option value="" disabled>
-                                    Select consultation
+                                    Select a Doctor
                                 </option>
-                                <option value="Fertility Consultation">
-                                    Fertility Consultation
+                                <option value="Dr. Ashok Kumar (Gastroenterologist)">
+                                    Dr. Ashok Kumar (Gastroenterologist)
                                 </option>
-                                <option value="Gynaecologist Consultation">
-                                    Gynaecologist Consultation
+                                <option value="Dr. Solai Raj (Urologist)">
+                                    Dr. Solai Raj (Urologist)
                                 </option>
-                                <option value="Pregnancy Consultation">
-                                    Pregnancy Consultation
+                                <option value="Dr. Bala Murugan (Cardiologist)">
+                                    Dr. Bala Murugan (Cardiologist)
+                                </option>
+                                <option value="Dr. Lakshmi (Gynecologist)">
+                                    Dr. Lakshmi (Gynecologist)
+                                </option>
+                                <option value="Dr. Senthil (Oncologist)">
+                                    Dr. Senthil (Oncologist)
+                                </option>
+                                <option value="Dr. Naresh Kumar (General Physician)">
+                                    Dr. Naresh Kumar (General Physician)
+                                </option>
+                                <option value="Dr. Rajadharshini (Nutritionist)">
+                                    Dr. Rajadharshini (Nutritionist)
+                                </option>
+                                <option value="Dr. Aishwarya (Obstetrician & Gynecologist)">
+                                    Dr. Aishwarya (Obstetrician & Gynecologist)
+                                </option>
+                                <option value="Dr. Ashwin (Radiologist)">
+                                    Dr. Ashwin (Radiologist)
+                                </option>
+                                <option value="Dr. Dhivya (Laparoscopic and General Surgeon)">
+                                    Dr. Dhivya (Laparoscopic and General Surgeon)
+                                </option>
+                                <option value="Dr. Shruthi (Genetic Counseling)">
+                                    Dr. Shruthi (Genetic Counseling)
                                 </option>
                             </select>
                             <svg

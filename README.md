@@ -46,7 +46,7 @@ The four body parameters must remain in this order:
 
 Branch and appointment date are optional in the form. When either is omitted,
 the API sends `Not specified` for that parameter so the approved four-parameter
-template never receives an empty or misleading value. The consultation type is
+template never receives an empty or misleading value. The doctor selection is
 also optional and remains part of the appointment submission, but is not
 included in the approved WhatsApp template parameters.
 

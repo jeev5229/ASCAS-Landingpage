@@ -5,10 +5,18 @@ import { extname, resolve, sep } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const AISENSY_ENDPOINT = "https://backend.aisensy.com/campaign/t1/api/v2"
-const CONSULTATIONS = new Set([
-    "Fertility Consultation",
-    "Gynaecologist Consultation",
-    "Pregnancy Consultation",
+const DOCTORS = new Set([
+    "Dr. Ashok Kumar (Gastroenterologist)",
+    "Dr. Solai Raj (Urologist)",
+    "Dr. Bala Murugan (Cardiologist)",
+    "Dr. Lakshmi (Gynecologist)",
+    "Dr. Senthil (Oncologist)",
+    "Dr. Naresh Kumar (General Physician)",
+    "Dr. Rajadharshini (Nutritionist)",
+    "Dr. Aishwarya (Obstetrician & Gynecologist)",
+    "Dr. Ashwin (Radiologist)",
+    "Dr. Dhivya (Laparoscopic and General Surgeon)",
+    "Dr. Shruthi (Genetic Counseling)",
 ])
 const CLINICS = new Set(["Vadapalani", "Valasaravakkam"])
 const COUNTRY_RULES = {
@@ -101,8 +109,8 @@ function validateAppointment(input, now, timeZone) {
         return { error: "Please enter a valid mobile number for the selected country." }
     }
 
-    if (consultationType && !CONSULTATIONS.has(consultationType)) {
-        return { error: "Please select a valid consultation." }
+    if (consultationType && !DOCTORS.has(consultationType)) {
+        return { error: "Please select a valid doctor." }
     }
 
     if (clinic && !CLINICS.has(clinic)) {
