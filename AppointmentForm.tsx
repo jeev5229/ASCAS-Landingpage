@@ -1,4 +1,5 @@
 import * as React from "react"
+import doctors from "./doctors.json"
 
 export interface AppointmentFormProps {
     style?: React.CSSProperties
@@ -446,12 +447,11 @@ export default function AppointmentForm({
                                 <option value="" disabled>
                                     Select a Doctor
                                 </option>
-                                <option value="Dr. Aishwarya Parthasarathy (Fertility Specialist, Gynecologist)">
-                                    Dr. Aishwarya Parthasarathy (Fertility Specialist, Gynecologist)
-                                </option>
-                                <option value="Dr. Ashwin Muralidharan (Radiologist)">
-                                    Dr. Ashwin Muralidharan (Radiologist)
-                                </option>
+                                {doctors.map(({ value, label }) => (
+                                    <option key={value} value={value}>
+                                        {label}
+                                    </option>
+                                ))}
                             </select>
                             <svg
                                 className="appointment-select-chevron"

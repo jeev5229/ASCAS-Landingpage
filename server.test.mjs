@@ -1,6 +1,7 @@
 import assert from "node:assert/strict"
 import { randomUUID } from "node:crypto"
 import { afterEach, test } from "node:test"
+import doctors from "./doctors.json" with { type: "json" }
 import { createAppServer } from "./server.mjs"
 
 const openServers = new Set()
@@ -8,7 +9,7 @@ const validAppointment = {
     patientName: "Asha Patient",
     countryCode: "+91",
     mobile: "9876543210",
-    consultationType: "Dr. Ashok Kumar (Gastroenterologist)",
+    consultationType: doctors[0].value,
     clinic: "Vadapalani",
     appointmentDate: futureDate(),
     consent: true,
@@ -106,28 +107,15 @@ test("valid request sends template data to the configured receptionist", async (
     assert.equal(payload.apiKey, "test-key-not-a-real-credential")
 })
 
-test("all listed doctors are accepted as optional consultation values", async () => {
-    const doctors = [
-        "Dr. Ashok Kumar (Gastroenterologist)",
-        "Dr. Solai Raj (Urologist)",
-        "Dr. Bala Murugan (Cardiologist)",
-        "Dr. Lakshmi (Gynecologist)",
-        "Dr. Senthil (Oncologist)",
-        "Dr. Naresh Kumar (General Physician)",
-        "Dr. Rajadharshini (Nutritionist)",
-        "Dr. Aishwarya (Obstetrician & Gynecologist)",
-        "Dr. Ashwin (Radiologist)",
-        "Dr. Dhivya (Laparoscopic and General Surgeon)",
-        "Dr. Shruthi (Genetic Counseling)",
-    ]
+test("the two listed doctors are accepted", async () => {
     const app = await startServer({ rateLimitMax: doctors.length })
 
     for (const doctor of doctors) {
         const response = await app.post({
             ...validAppointment,
-            consultationType: doctor,
+            consultationType: doctor.value,
         })
-        assert.equal(response.status, 200, `${doctor} should be accepted`)
+        assert.equal(response.status, 200, `${doctor.value} should be accepted`)
     }
 })
 
@@ -145,14 +133,24 @@ test("invalid mobile numbers are rejected before contacting AiSensy", async () =
     assert.equal(called, false)
 })
 
-test("missing required fields are rejected", async () => {
+test("missing patient name is rejected", async () => {
     const app = await startServer()
     const response = await app.post({
         ...validAppointment,
         patientName: "",
-        consent: false,
     })
     assert.equal(response.status, 400)
+    assert.match((await response.json()).message, /patient name/i)
+})
+
+test("missing mobile number is rejected", async () => {
+    const app = await startServer()
+    const response = await app.post({
+        ...validAppointment,
+        mobile: "",
+    })
+    assert.equal(response.status, 400)
+    assert.match((await response.json()).message, /valid mobile number/i)
 })
 
 test("appointment submits with only the required fields and safe template parameters", async () => {
@@ -222,6 +220,24 @@ test("invalid non-empty optional appointment values are rejected", async () => {
         clinic: "Unknown branch",
     })
     assert.equal(response.status, 400)
+    assert.equal(called, false)
+})
+
+test("unsupported doctor values are rejected before contacting AiSensy", async () => {
+    let called = false
+    const app = await startServer({
+        fetchImpl: async () => {
+            called = true
+            return Response.json({ success: true })
+        },
+    })
+
+    const response = await app.post({
+        ...validAppointment,
+        consultationType: "Dr Unsupported",
+    })
+    assert.equal(response.status, 400)
+    assert.match((await response.json()).message, /valid doctor/i)
     assert.equal(called, false)
 })
 

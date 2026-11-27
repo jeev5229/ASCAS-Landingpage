@@ -3,21 +3,10 @@ import { createServer as createHttpServer } from "node:http"
 import { readFile, stat } from "node:fs/promises"
 import { extname, resolve, sep } from "node:path"
 import { fileURLToPath } from "node:url"
+import doctors from "./doctors.json" with { type: "json" }
 
 const AISENSY_ENDPOINT = "https://backend.aisensy.com/campaign/t1/api/v2"
-const DOCTORS = new Set([
-    "Dr. Ashok Kumar (Gastroenterologist)",
-    "Dr. Solai Raj (Urologist)",
-    "Dr. Bala Murugan (Cardiologist)",
-    "Dr. Lakshmi (Gynecologist)",
-    "Dr. Senthil (Oncologist)",
-    "Dr. Naresh Kumar (General Physician)",
-    "Dr. Rajadharshini (Nutritionist)",
-    "Dr. Aishwarya (Obstetrician & Gynecologist)",
-    "Dr. Ashwin (Radiologist)",
-    "Dr. Dhivya (Laparoscopic and General Surgeon)",
-    "Dr. Shruthi (Genetic Counseling)",
-])
+const DOCTORS = new Set(doctors.map(({ value }) => value))
 const CLINICS = new Set(["Vadapalani", "Valasaravakkam"])
 const COUNTRY_RULES = {
     "+91": /^[6-9]\d{9}$/,
